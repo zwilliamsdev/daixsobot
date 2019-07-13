@@ -4,7 +4,7 @@ const { prefix, token } = require('./botconfig.json')
 
 const client = new Discord.Client() // Client object
 client.commands = new Discord.Collection() // Discord Collection object
-const cooldowns = new Discord.Collection() // Commands that are cooling down
+// const cooldowns = new Discord.Collection() // Commands that are cooling down
 // Create list of command files skipping anything that isn't a JS file
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
 
@@ -50,31 +50,31 @@ client.on('message', message => {
     return message.channel.send(reply)
   }
 
-  // Add missing commands to the cooldowns collection
-  if (!cooldowns.has(command.name)) {
-    cooldowns.set(command.name, new Discord.Collection())
-  }
+  // // Add missing commands to the cooldowns collection
+  // if (!cooldowns.has(command.name)) {
+  //   cooldowns.set(command.name, new Discord.Collection())
+  // }
 
-  // Create the cooldown timer
-  const now = Date.now() // Current time
-  const timestamps = cooldowns.get(command.name) // Commands specific cooldown
-  const cooldownLength = (command.cooldown || 3) * 1000 // convert to seconds
+  // // Create the cooldown timer
+  // const now = Date.now() // Current time
+  // const timestamps = cooldowns.get(command.name) // Commands specific cooldown
+  // const cooldownLength = (command.cooldown || 3) * 1000 // convert to seconds
 
-  // If user has already used the command
-  if (timestamps.has(message.author.id)) {
-    // add the cooldown time to the expiration time
-    const expiration = timestamps.get(message.author.id) + cooldownLength
+  // // If user has already used the command
+  // if (timestamps.has(message.author.id)) {
+  //   // add the cooldown time to the expiration time
+  //   const expiration = timestamps.get(message.author.id) + cooldownLength
 
-    // If the cooldown is still active
-    if (now < expiration) {
-      // Calculate seconds left on cooldown
-      const countdown = (expiration - now) / 1000
-      // Inform user of time left
-      return message.reply(`Please wait ${countdown.toFixed(1)} more seconds.`)
-    }
-    timestamps.set(message.author.id, now)
-    setTimeout(() => timestamps.delete(message.author.id), cooldownLength)
-  }
+  //   // If the cooldown is still active
+  //   if (now < expiration) {
+  //     // Calculate seconds left on cooldown
+  //     const countdown = (expiration - now) / 1000
+  //     // Inform user of time left
+  //     return message.reply(`Please wait ${countdown.toFixed(1)} more seconds.`)
+  //   }
+  //   timestamps.set(message.author.id, now)
+  //   setTimeout(() => timestamps.delete(message.author.id), cooldownLength)
+  // }
 
   // Attempt to run the command
   try {

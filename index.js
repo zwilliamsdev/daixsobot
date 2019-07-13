@@ -1,9 +1,47 @@
 const Discord = require('discord.js')
 const fs = require('fs')
-const config = require('./botconfig.json')
+const { prefix, token } = require('./botconfig.json')
 
-const bot = new Discord.Client()
+const client = new Discord.Client() // Client object
+client.commands = new Discord.Collection() // Discord Collection object
 
-bot.on('ready', () => console.log(`${bot.user.username} is ready to get to work!`))
+// Create list of command files skipping anything that isn't a JS file
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
 
-bot.login(config.token)
+// Runs when server is ready
+client.on('ready', () => console.log(`${client.user.username} is ready to get to work!`))
+
+// Loop through command files and create commands collection
+for (const file of commandFiles) {
+  const command = require(`./commands/${file}`)
+
+  // Create new item in Collection
+  // key: command name, value: exported module
+  client.commands.set(command.name, command)
+}
+
+client.on('message', message => {
+  // if the message does not start with prefix or is a bot end execution
+  if (!message.content.startsWith(prefix) || message.author.bot) return
+
+  // split spaces to grab arguments list regex handles multiple spaces
+  const args = message.content.slice(prefix.length).split(/ +/)
+  // shift returns the first argument and removes it from args
+  const commandName = args.shift().toLowerCase()
+
+  // If the command does not exist exit
+  if (!client.commands.has(commandName)) return
+
+  // Load command the user is attempting to run
+  const command = client.commands.get(commandName)
+
+  // Attempt to run the command
+  try {
+    command.execute(message, args)
+  } catch (error) {
+    console.error(error)
+    message.reply('There was an issue running this command.')
+  }
+})
+
+client.login(token)
